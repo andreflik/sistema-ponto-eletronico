@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: ponto_app
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - postgres
+
+  nginx:
+    image: nginx:alpine
+    container_name: ponto_nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  postgres:
+    image: postgres:16
+    container_name: ponto_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ponto_db
+      POSTGRES_USER: ponto_user
+      POSTGRES_PASSWORD: ponto_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - ponto_pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:alpine
+    container_name: ponto_redis
+    ports:
+      - "6379:6379"
+
+  mailpit:
+    image: axllent/mailpit
+    container_name: ponto_mailpit
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+
+volumes:
+  ponto_pgdata:
