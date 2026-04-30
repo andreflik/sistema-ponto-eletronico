@@ -47,5 +47,15 @@ services:
       - "8025:8025"
       - "1025:1025"
 
+  node:
+    image: node:20-alpine
+    container_name: ponto_node
+    working_dir: /var/www/html
+    volumes:
+      - ./src:/var/www/html
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && tail -f /dev/null"
+
 volumes:
   ponto_pgdata:
