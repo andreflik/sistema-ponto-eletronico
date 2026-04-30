@@ -23,13 +23,40 @@
             <div>
                 <h2 class="text-lg font-semibold text-gray-800">Horário atual</h2>
                 <p class="text-gray-500 text-sm">Use este horário como referência para registrar seu ponto.</p>
+
+                <div class="mt-3">
+                    @if ($status['color'] === 'green')
+                        <span
+                            class="inline-flex items-center rounded-full bg-green-100 px-4 py-1 text-sm font-semibold text-green-700">
+                            🟢 {{ $status['label'] }}
+                        </span>
+                    @elseif ($status['color'] === 'yellow')
+                        <span
+                            class="inline-flex items-center rounded-full bg-yellow-100 px-4 py-1 text-sm font-semibold text-yellow-700">
+                            🟡 {{ $status['label'] }}
+                        </span>
+                    @elseif ($status['color'] === 'red')
+                        <span
+                            class="inline-flex items-center rounded-full bg-red-100 px-4 py-1 text-sm font-semibold text-red-700">
+                            🔴 {{ $status['label'] }}
+                        </span>
+                    @else
+                        <span
+                            class="inline-flex items-center rounded-full bg-blue-100 px-4 py-1 text-sm font-semibold text-blue-700">
+                            🔵 {{ $status['label'] }}
+                        </span>
+                    @endif
+
+                    <p class="text-sm text-gray-500 mt-2">
+                        {{ $status['message'] }}
+                    </p>
+                </div>
             </div>
 
             <div class="text-4xl font-bold text-blue-600">
                 <span x-text="time"></span>
             </div>
         </div>
-
         <!-- Cards -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
 

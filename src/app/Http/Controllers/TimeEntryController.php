@@ -15,7 +15,9 @@ class TimeEntryController extends Controller
             ->orderByDesc('work_date')
             ->paginate(10);
 
-        return view('time_entries.index', compact('entries', 'todayEntry'));
+        $status = $this->getTodayStatus($todayEntry);
+
+        return view('time_entries.index', compact('entries', 'todayEntry', 'status'));
     }
 
     private function getTodayEntry()
@@ -38,6 +40,39 @@ class TimeEntryController extends Controller
         $entry->save();
 
         return $entry;
+    }
+
+    private function getTodayStatus(TimeEntry $entry): array
+    {
+        if ($entry->clock_out) {
+            return [
+                'label' => 'Finalizado',
+                'color' => 'red',
+                'message' => 'Você já finalizou sua jornada de hoje.',
+            ];
+        }
+
+        if ($entry->break_start && !$entry->break_end) {
+            return [
+                'label' => 'Em intervalo',
+                'color' => 'yellow',
+                'message' => 'Você está em intervalo agora.',
+            ];
+        }
+
+        if ($entry->clock_in) {
+            return [
+                'label' => 'Trabalhando',
+                'color' => 'green',
+                'message' => 'Sua jornada está em andamento.',
+            ];
+        }
+
+        return [
+            'label' => 'Aguardando entrada',
+            'color' => 'blue',
+            'message' => 'Registre sua entrada para iniciar a jornada.',
+        ];
     }
 
     public function clockIn()
