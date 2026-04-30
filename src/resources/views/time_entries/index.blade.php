@@ -151,6 +151,7 @@
                         <th>Intervalo Início</th>
                         <th>Intervalo Fim</th>
                         <th>Saída</th>
+                        <th>Total do Dia</th>
                     </tr>
                 </thead>
 
@@ -175,6 +176,10 @@
 
                             <td class="text-red-600 font-semibold">
                                 {{ optional($entry->clock_out)->format('H:i') }}
+                            </td>
+
+                            <td class="text-gray-800 font-bold">
+                                {{ $entry->worked_hours }}
                             </td>
                         </tr>
                     @endforeach
