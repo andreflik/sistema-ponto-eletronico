@@ -1,17 +1,39 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <div class="max-w-6xl mx-auto p-6 space-y-6">
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+        <h1 class="text-2xl font-bold">Dashboard</h1>
+
+        <div class="bg-white rounded-2xl shadow p-6">
+            <h2 class="text-lg font-semibold mb-4">Horas trabalhadas por dia</h2>
+
+            <canvas id="hoursChart"></canvas>
         </div>
+
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        const ctx = document.getElementById('hoursChart');
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: @json($labels),
+                datasets: [{
+                    label: 'Horas trabalhadas',
+                    data: @json($data),
+                    backgroundColor: '#3b82f6'
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
 </x-app-layout>
