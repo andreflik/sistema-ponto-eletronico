@@ -6,8 +6,25 @@
         <h1 class="text-2xl font-bold text-gray-800">Dashboard</h1>
 
         <!-- Filtros -->
+        <!-- Filtros -->
         <div x-data="{
-            filterType: '{{ $filterType }}'
+            filterType: '{{ $filterType }}',
+            filterDate: '{{ $filterDate }}',
+        
+            get inputType() {
+                if (this.filterType === 'day') return 'date';
+                if (this.filterType === 'week') return 'date';
+                if (this.filterType === 'month') return 'month';
+                if (this.filterType === 'year') return 'number';
+                return 'month';
+            },
+        
+            resetDate() {
+                if (this.filterType === 'day') this.filterDate = '{{ now()->toDateString() }}';
+                if (this.filterType === 'week') this.filterDate = '{{ now()->toDateString() }}';
+                if (this.filterType === 'month') this.filterDate = '{{ now()->format('Y-m') }}';
+                if (this.filterType === 'year') this.filterDate = '{{ now()->year }}';
+            }
         }" class="bg-white p-6 rounded-2xl shadow">
             <form method="GET" action="{{ route('dashboard') }}" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
 
@@ -16,7 +33,7 @@
                         Tipo de filtro
                     </label>
 
-                    <select name="filter_type" x-model="filterType"
+                    <select name="filter_type" x-model="filterType" x-on:change="resetDate()"
                         class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
                         <option value="day">Dia</option>
                         <option value="week">Semana</option>
@@ -30,20 +47,8 @@
                         Período
                     </label>
 
-                    <input x-show="filterType === 'day'" type="date" name="filter_date"
-                        value="{{ $filterType === 'day' ? $filterDate : now()->toDateString() }}"
-                        class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
-
-                    <input x-show="filterType === 'week'" type="date" name="filter_date"
-                        value="{{ $filterType === 'week' ? $filterDate : now()->toDateString() }}"
-                        class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
-
-                    <input x-show="filterType === 'month'" type="month" name="filter_date"
-                        value="{{ $filterType === 'month' ? $filterDate : now()->format('Y-m') }}"
-                        class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
-
-                    <input x-show="filterType === 'year'" type="number" name="filter_date" min="2000"
-                        max="2100" value="{{ $filterType === 'year' ? $filterDate : now()->year }}"
+                    <input x-bind:type="inputType" name="filter_date" x-model="filterDate" min="2000"
+                        max="2100"
                         class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
                 </div>
 
