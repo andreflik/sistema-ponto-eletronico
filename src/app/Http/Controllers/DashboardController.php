@@ -11,7 +11,37 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $filterType = request('filter_type', 'month');
+        $filterDate = request('filter_date', now()->format('Y-m'));
+
+        if ($filterType === 'day') {
+            $date = Carbon::parse($filterDate);
+
+            $startDate = $date->copy()->startOfDay();
+            $endDate = $date->copy()->endOfDay();
+        } elseif ($filterType === 'week') {
+            $date = Carbon::parse($filterDate);
+
+            $startDate = $date->copy()->startOfWeek();
+            $endDate = $date->copy()->endOfWeek();
+        } elseif ($filterType === 'year') {
+            $date = Carbon::createFromDate($filterDate, 1, 1);
+
+            $startDate = $date->copy()->startOfYear();
+            $endDate = $date->copy()->endOfYear();
+        } else {
+            $filterType = 'month';
+            $date = Carbon::parse($filterDate . '-01');
+
+            $startDate = $date->copy()->startOfMonth();
+            $endDate = $date->copy()->endOfMonth();
+        }
+
         $entries = TimeEntry::where('user_id', Auth::id())
+            ->whereBetween('work_date', [
+                $startDate->toDateString(),
+                $endDate->toDateString(),
+            ])
             ->orderBy('work_date')
             ->get();
 
@@ -22,12 +52,10 @@ class DashboardController extends Controller
         $daysWorked = 0;
 
         foreach ($entries as $entry) {
-            $labels[] = \Carbon\Carbon::parse($entry->work_date)->format('d/m');
+            $labels[] = Carbon::parse($entry->work_date)->format('d/m/Y');
 
             $minutes = $entry->worked_minutes;
-            $hours = $minutes / 60;
-
-            $data[] = round($hours, 2);
+            $data[] = round($minutes / 60, 2);
 
             if ($minutes > 0) {
                 $totalMinutes += $minutes;
@@ -35,11 +63,18 @@ class DashboardController extends Controller
             }
         }
 
-        $today = $entries->last();
-        $todayMinutes = $today ? $today->worked_minutes : 0;
+        $todayEntry = TimeEntry::where('user_id', Auth::id())
+            ->where('work_date', now()->toDateString())
+            ->first();
 
-        $weeklyMinutes = $entries
-            ->filter(fn($e) => \Carbon\Carbon::parse($e->work_date)->isCurrentWeek())
+        $todayMinutes = $todayEntry ? $todayEntry->worked_minutes : 0;
+
+        $weeklyMinutes = TimeEntry::where('user_id', Auth::id())
+            ->whereBetween('work_date', [
+                now()->startOfWeek()->toDateString(),
+                now()->endOfWeek()->toDateString(),
+            ])
+            ->get()
             ->sum('worked_minutes');
 
         return view('dashboard', [
@@ -47,8 +82,11 @@ class DashboardController extends Controller
             'data' => $data,
             'todayHours' => $this->formatMinutes($todayMinutes),
             'weeklyHours' => $this->formatMinutes($weeklyMinutes),
+            'periodHours' => $this->formatMinutes($totalMinutes),
             'daysWorked' => $daysWorked,
             'averageHours' => $daysWorked ? $this->formatMinutes($totalMinutes / $daysWorked) : '00:00',
+            'filterType' => $filterType,
+            'filterDate' => $filterDate,
         ]);
     }
 
