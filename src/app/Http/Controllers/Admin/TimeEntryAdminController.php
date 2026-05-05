@@ -7,6 +7,8 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\TimeEntry;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\TimeEntriesExport;
 
 class TimeEntryAdminController extends Controller
 {
@@ -67,5 +69,24 @@ class TimeEntryAdminController extends Controller
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download('relatorio-pontos.pdf');
+    }
+
+    public function exportExcel(Request $request)
+    {
+        $selectedUserId = $request->input('user_id');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $entries = TimeEntry::with('user')
+            ->when($selectedUserId, fn($q) => $q->where('user_id', $selectedUserId))
+            ->when($startDate, fn($q) => $q->whereDate('work_date', '>=', $startDate))
+            ->when($endDate, fn($q) => $q->whereDate('work_date', '<=', $endDate))
+            ->orderByDesc('work_date')
+            ->get();
+
+        return Excel::download(
+            new TimeEntriesExport($entries),
+            'relatorio-pontos.xlsx'
+        );
     }
 }

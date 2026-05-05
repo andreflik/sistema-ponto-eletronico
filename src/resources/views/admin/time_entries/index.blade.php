@@ -78,6 +78,11 @@
                     PDF
                 </a>
 
+                <a href="{{ route('admin.pontos.excel', request()->query()) }}" data-no-loading="true"
+                    class="h-[42px] bg-green-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-green-700 text-center transition flex items-center justify-center">
+                    Excel
+                </a>
+
             </form>
         </div>
 
