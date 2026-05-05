@@ -3,6 +3,7 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TimeEntryController;
+use App\Http\Controllers\Admin\TimeEntryAdminController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -23,6 +24,10 @@ Route::middleware('auth')->group(function () {
     Route::post('/ponto/intervalo-inicio', [TimeEntryController::class, 'breakStart'])->name('ponto.breakstart');
     Route::post('/ponto/intervalo-fim', [TimeEntryController::class, 'breakEnd'])->name('ponto.breakend');
     Route::post('/ponto/saida', [TimeEntryController::class, 'clockOut'])->name('ponto.clockout');
+});
+
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::get('/admin/pontos', [TimeEntryAdminController::class, 'index']);
 });
 
 require __DIR__ . '/auth.php';
