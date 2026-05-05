@@ -27,7 +27,7 @@ Route::middleware('auth')->group(function () {
 });
 
 Route::middleware(['auth', 'admin'])->group(function () {
-    Route::get('/admin/pontos', [TimeEntryAdminController::class, 'index']);
+    Route::get('/admin/pontos', [TimeEntryAdminController::class, 'index'])->name('admin.pontos');
 });
 
 require __DIR__ . '/auth.php';

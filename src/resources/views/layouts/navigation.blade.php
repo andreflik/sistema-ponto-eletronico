@@ -18,6 +18,13 @@
                     <x-nav-link :href="route('ponto.index')" :active="request()->routeIs('ponto.index')">
                         {{ __('Meu Ponto') }}
                     </x-nav-link>
+                    @auth
+                        @if (auth()->user()->role === 'admin')
+                            <x-nav-link :href="route('admin.pontos')" :active="request()->routeIs('admin.pontos')">
+                                {{ __('Painel Admin') }}
+                            </x-nav-link>
+                        @endif
+                    @endauth
                 </div>
             </div>
 
