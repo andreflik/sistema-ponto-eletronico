@@ -22,8 +22,16 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
-<body class="font-sans antialiased" x-data="{ pageLoading: false }" x-init="window.addEventListener('beforeunload', () => pageLoading = true);
-window.addEventListener('pageshow', () => pageLoading = false);">
+<body class="font-sans antialiased" x-data="{ pageLoading: false }" x-init="window.addEventListener('beforeunload', (event) => {
+    const activeElement = document.activeElement;
+
+    if (activeElement && activeElement.dataset.noLoading === 'true') {
+        pageLoading = false;
+        return;
+    }
+
+    pageLoading = true;
+});">
     <!-- Loading Global -->
     <div x-show="pageLoading" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40">
         <div class="bg-white rounded-2xl shadow-lg px-8 py-6 text-center">

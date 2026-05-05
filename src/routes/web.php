@@ -30,4 +30,6 @@ Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/pontos', [TimeEntryAdminController::class, 'index'])->name('admin.pontos');
 });
 
+Route::get('/admin/pontos/pdf', [TimeEntryAdminController::class, 'exportPdf'])->middleware(['auth', 'admin'])->name('admin.pontos.pdf');
+
 require __DIR__ . '/auth.php';

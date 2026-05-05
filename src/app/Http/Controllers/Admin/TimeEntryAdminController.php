@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\TimeEntry;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -38,5 +39,33 @@ class TimeEntryAdminController extends Controller
             'startDate',
             'endDate'
         ));
+    }
+
+    public function exportPdf(Request $request)
+    {
+        $selectedUserId = $request->input('user_id');
+        $startDate = $request->input('start_date');
+        $endDate = $request->input('end_date');
+
+        $entries = TimeEntry::with('user')
+            ->when($selectedUserId, function ($query) use ($selectedUserId) {
+                $query->where('user_id', $selectedUserId);
+            })
+            ->when($startDate, function ($query) use ($startDate) {
+                $query->whereDate('work_date', '>=', $startDate);
+            })
+            ->when($endDate, function ($query) use ($endDate) {
+                $query->whereDate('work_date', '<=', $endDate);
+            })
+            ->orderByDesc('work_date')
+            ->get();
+
+        $pdf = Pdf::loadView('admin.time_entries.pdf', [
+            'entries' => $entries,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->download('relatorio-pontos.pdf');
     }
 }
