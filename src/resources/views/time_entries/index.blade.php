@@ -17,6 +17,7 @@
             <p class="text-gray-500">Registre seu ponto e acompanhe seu histórico.</p>
         </div>
 
+
         <!-- Relógio Atual -->
         <div x-data="{ time: new Date().toLocaleTimeString('pt-BR') }" x-init="setInterval(() => time = new Date().toLocaleTimeString('pt-BR'), 1000)"
             class="bg-white border border-gray-200 rounded-2xl shadow-sm p-6 flex items-center justify-between">
@@ -152,6 +153,7 @@
                         <th>Intervalo Fim</th>
                         <th>Saída</th>
                         <th>Total do Dia</th>
+                        <th>Ações</th>
                     </tr>
                 </thead>
 
@@ -180,6 +182,92 @@
 
                             <td class="text-gray-800 font-bold">
                                 {{ $entry->worked_hours }}
+                            </td>
+
+                            <td>
+                                <div x-data="{ open: false }">
+                                    <button type="button" @click="open = true"
+                                        class="inline-flex items-center justify-center w-9 h-9 rounded-full bg-indigo-100 text-indigo-700 hover:bg-indigo-200 transition"
+                                        title="Solicitar ajuste">
+                                        ✏️
+                                    </button>
+
+                                    <div x-show="open" x-cloak
+                                        class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+                                        <div @click.away="open = false"
+                                            class="bg-white rounded-2xl shadow-xl w-full max-w-3xl p-6">
+                                            <div class="flex justify-between items-start mb-5">
+                                                <button type="button" @click="open = false"
+                                                    class="text-gray-400 hover:text-gray-600 text-2xl">
+                                                    ×
+                                                </button>
+                                            </div>
+
+                                            <form method="POST" action="{{ route('ponto.ajuste.store') }}"
+                                                class="space-y-5">
+                                                @csrf
+
+                                                <input type="hidden" name="work_date"
+                                                    value="{{ \Carbon\Carbon::parse($entry->work_date)->format('Y-m-d') }}">
+
+                                                <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                                    <div>
+                                                        <label
+                                                            class="block text-sm font-medium text-gray-700 mb-1">Entrada</label>
+                                                        <input type="time" name="requested_clock_in"
+                                                            value="{{ optional($entry->clock_in)->format('H:i') }}"
+                                                            class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    </div>
+
+                                                    <div>
+                                                        <label
+                                                            class="block text-sm font-medium text-gray-700 mb-1">Início
+                                                            intervalo</label>
+                                                        <input type="time" name="requested_break_start"
+                                                            value="{{ optional($entry->break_start)->format('H:i') }}"
+                                                            class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    </div>
+
+                                                    <div>
+                                                        <label class="block text-sm font-medium text-gray-700 mb-1">Fim
+                                                            intervalo</label>
+                                                        <input type="time" name="requested_break_end"
+                                                            value="{{ optional($entry->break_end)->format('H:i') }}"
+                                                            class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    </div>
+
+                                                    <div>
+                                                        <label
+                                                            class="block text-sm font-medium text-gray-700 mb-1">Saída</label>
+                                                        <input type="time" name="requested_clock_out"
+                                                            value="{{ optional($entry->clock_out)->format('H:i') }}"
+                                                            class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                                                    </div>
+                                                </div>
+
+                                                <div>
+                                                    <label
+                                                        class="block text-sm font-medium text-gray-700 mb-1">Justificativa</label>
+                                                    <textarea name="reason" rows="4"
+                                                        class="w-full border-gray-300 rounded-xl shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                                                        placeholder="Explique o motivo do ajuste solicitado." required></textarea>
+                                                </div>
+
+                                                <div class="flex justify-end gap-3">
+                                                    <button type="button" @click="open = false"
+                                                        class="bg-gray-100 text-gray-700 font-semibold px-6 py-2 rounded-xl hover:bg-gray-200">
+                                                        Cancelar
+                                                    </button>
+
+                                                    <button type="submit"
+                                                        class="bg-indigo-600 text-white font-semibold px-6 py-2 rounded-xl hover:bg-indigo-700">
+                                                        Enviar solicitação
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
                         </tr>
                     @endforeach
